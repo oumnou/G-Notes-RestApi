@@ -1,8 +1,11 @@
 package estm.dsic.jee.rest.model;
 
 
-public class User {
+
+public class User  {
     
+    public User() {
+    }
     private int id;
     private String email;
     private String password;
@@ -39,6 +42,6 @@ public class User {
     public void setIsAdmin(Boolean isAdmin) {
         this.isAdmin = isAdmin;
     }
-
+ 
 
 }

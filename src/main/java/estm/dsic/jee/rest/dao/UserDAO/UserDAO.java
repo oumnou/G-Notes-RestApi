@@ -1,17 +1,16 @@
 package estm.dsic.jee.rest.dao.UserDAO;
 
-
-
+import estm.dsic.jee.rest.dao.Reposistory;
+import estm.dsic.jee.rest.model.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import estm.dsic.jee.rest.model.User;
 
 
-public class UserDAO {
+public class UserDAO implements Reposistory<User,String>{
     
     
     Connection connection ;
@@ -19,10 +18,45 @@ public class UserDAO {
     public UserDAO(Connection connection){
         this.connection = connection;
     }
+             
+    @Override
+    public void create(User user) {   
+        String query = "INSERT INTO user(id,email, password, isAdmin ) VALUES (?,?,?,?)";
+    
+            String password = user.getPassword();
+            String email = user.getEmail();
+            int id = user.getId();
+            Boolean isAdmin = user.getIsAdmin();
+            
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setInt(1, id);
+                statement.setString(2, email);
+                statement.setString(3, password);
+                statement.setBoolean(4, isAdmin);
+
+                statement.executeUpdate();
+
+                // return new User(
+                //     id,
+                //     email,
+                //     password,
+                //     isAdmin);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+   }
 
 
-    public User getUser(String email , String password)  {
-     
+    @Override
+    public User auth(User entity) {
+       return find(entity, null);
+    }
+
+
+    @Override
+    public User find(User user, String index) {
+      
         String query = "SELECT * FROM user where email = ? AND password = ?";
 
       
@@ -30,11 +64,12 @@ public class UserDAO {
             
 
                 PreparedStatement statement = connection.prepareStatement(query);
-                statement.setString(1, email);
-                statement.setString(2, password);
+                statement.setString(1, user.getEmail());
+                statement.setString(2, user.getPassword());
                 ResultSet resultSet = statement.executeQuery() ;
 
                 if (resultSet.next()) {
+
                    return new User(
                 
                     resultSet.getInt("id"),
@@ -51,80 +86,39 @@ public class UserDAO {
         }
         return null;
     }
-   
 
 
-    public  User addUser(User user) throws SQLException {   
-        String query = "INSERT INTO user(id,email, password, isAdmin ) VALUES (?,?,?,?)";
+    @Override
+    public void delete(User user) {
+        String query = "Delete * FROM user where email = ?";
+            
+
+            PreparedStatement statement;
+            try {
+                statement = connection.prepareStatement(query);
+                statement.setString(1, user.getEmail());
+                ResultSet resultSet = statement.executeQuery();
+            
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+          
+
         
     
+}
 
 
-            String password = user.getPassword();
-            String email = user.getEmail();
-            int id = user.getId();
-            Boolean isAdmin = user.getIsAdmin();
-            
-            PreparedStatement statement = connection.prepareStatement(query);
-                
-                statement.setInt(1, id);
-                statement.setString(2, email);
-                statement.setString(3, password);
-                statement.setBoolean(4, isAdmin);
 
-                statement.executeUpdate();
-                return new User(
-                    id,
-                    email,
-                    password,
-                    isAdmin);
 
-   }
 
-      
-   
-     boolean emailExists(String email) throws SQLException {
-        String query = "SELECT * FROM user_accounts WHERE email = ?";
 
-        PreparedStatement statement = connection.prepareStatement(query);
-        statement.setString(1, email);
-        ResultSet resultSet = statement.executeQuery() ;
-
-        if (resultSet.next()) {
-            return true;
-        }
-
-        return false;
+    @Override
+    public void update(User entity, String index) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'update'");
     }
 
-    public User getUserByEmail( String email)  {
-     
-        String query = "SELECT * FROM user where email = ? ";
-
-      
-        try {
-            
-
-                PreparedStatement statement = connection.prepareStatement(query);
-                statement.setString(1, email);
-                ResultSet resultSet = statement.executeQuery() ;
-
-                if (resultSet.next()) {
-                   return new User(
-                    resultSet.getInt("id"),
-                    resultSet.getString("email"),
-                    resultSet.getString("password"),
-                    resultSet.getBoolean("isAsmin"));
-                }
-            
-               
-        } catch (Exception e) {
-           
-          return null;
-
-        }
-        return null;
-    }
 
 
 

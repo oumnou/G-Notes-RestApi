@@ -1,22 +1,20 @@
 package estm.dsic.jee.rest.controller;
 
+import estm.dsic.jee.rest.dao.UserDAO.UserDAO;
+import estm.dsic.jee.rest.model.User;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import javax.sql.DataSource;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import estm.dsic.jee.rest.dao.UserDAO.UserDAO;
-import estm.dsic.jee.rest.model.User;
-
 import jakarta.annotation.Resource;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
 
 @Path("/users")
 
@@ -28,38 +26,54 @@ public class UserController {
 
     @POST
     @Path("/signup")
-
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response signup(String userjson) {
+    public Response signup(User user) {
         
-        try {
-            // Create ObjectMapper instance
-            ObjectMapper objectMapper = new ObjectMapper();
-    
-            // Parse JSON string to JsonNode
-            JsonNode jsonNode = objectMapper.readTree(userjson);
-    
-            // Extract user information from JSON
-            String email = jsonNode.get("email").asText();
-            String password = jsonNode.get("password").asText();
+            try (Connection connection = dataSource.getConnection()) {
+                
+                if (dataSource != null) {
+                    userDAO = new UserDAO(connection);
+                    userDAO.create(user) ;
+                } 
             
-    
-    
-            // Create a User object
-            User user = new User(0,email, password,false);
-    
-            // Add the user to the database
+            } catch (SQLException e) {
+                e.printStackTrace();
+
+                // Handle database errors
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Database error").build();
+            }
+         
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Added succ").build();
+
+}
+
+
+    @GET
+    @Path("/login")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response login(User user) {
+        
             try (Connection connection = dataSource.getConnection()) {
                 if (dataSource != null) {
                     userDAO = new UserDAO(connection);
-                    if(userDAO.addUser(user) == null) {
-                        System.out.println();
+                    User user2 = userDAO.auth(user);
+
+                    if(user2 == null) {
+                        return Response.status(Response.Status.OK).entity("User is null").build();
+
+                    } else if (user2.getIsAdmin()) {
+                        return Response.status(Response.Status.OK).entity("Admin").build();
+                       
+                        
+                    }else {
+                        return Response.status(Response.Status.OK).entity("No").build();
+
                     }
                 }
-               else{
+            else{
                     System.out.println("Couldn't connect to database");
-               }
-    
+            }
+
                 
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -67,15 +81,10 @@ public class UserController {
                 // Handle database errors
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Database error").build();
             }
-    
+
             // Return a success response
-            return Response.status(Response.Status.OK).entity("User added successfully").build();
+            return Response.status(Response.Status.OK).entity("User is here").build();
         
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            // Handle JSON parsing errors
-            return Response.status(Response.Status.BAD_REQUEST).entity("Invalid JSON data").build();
         }
-  
-}
+
 }

@@ -1,14 +1,14 @@
 package estm.dsic.jee.rest.dao.NoteDAO;
 
+import estm.dsic.jee.rest.model.Note;
+
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-import estm.dsic.jee.rest.model.Note;
 
 public class NoteDAO {
-    
    
     Connection connection ;
 
