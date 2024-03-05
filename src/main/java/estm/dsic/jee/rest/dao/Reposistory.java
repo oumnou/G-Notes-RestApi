@@ -7,7 +7,7 @@ public interface Reposistory<T,I> {
     T auth(T entity);
     T find (T entity,I index);
     void delete(T entity);
-    void update(T entity,I index);
+    void update(T entity);
 
 
 }

@@ -1,14 +1,19 @@
 package estm.dsic.jee.rest.dao.NoteDAO;
 
-import estm.dsic.jee.rest.model.Note;
 
+import java.util.ArrayList;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 
-public class NoteDAO {
+import estm.dsic.jee.rest.dao.Reposistory;
+import estm.dsic.jee.rest.model.Note;
+
+
+public class NoteDAO implements Reposistory<Note,String> {
    
     Connection connection ;
 
@@ -16,26 +21,30 @@ public class NoteDAO {
         this.connection = connection;
     }
 
-    public Note getNote(String id ,String id_user )  {
-     
-        String query = "SELECT * FROM notes where id = ? AND id_user = ?";
+    public ArrayList<Note> getNotes(String user_email )  {
+             
+        String query = "SELECT * FROM notes where user_email = ?";
         try {
             
                 PreparedStatement statement = connection.prepareStatement(query);
-                statement.setString(1, id);
-                statement.setString(2, id_user);
+                statement.setString(1, user_email);
                 ResultSet resultSet = statement.executeQuery() ;
 
-                if (resultSet.next()) {
-                   return new Note(
+                ArrayList<Note> notes = new ArrayList<>();
                 
-                    resultSet.getInt("id"),
+                if (resultSet.next()) {
+                    
+                   notes.add(
+                    new Note(
+                    resultSet.getInt(0),             
                     resultSet.getDate("date"),
                     resultSet.getString("subject"),
                     resultSet.getString("body"),
-                    resultSet.getInt("idUser")
-                    );
+                    resultSet.getString("idUser")
+                    ));
                 }
+
+                return notes;
             
                
         } catch (Exception e) {
@@ -43,17 +52,64 @@ public class NoteDAO {
           return null;
 
         }
-        return null;
     }
    
-    public Note addNote(Note note) {   
-        String query = "INSERT INTO note(id, date, subject, body, user_id ) VALUES (?,?,?,?,?)";
-        
-       return null;
+   
+    @Override
+    public void create(Note note) {
+        String query = "INSERT INTO note(id, date, subject, body, user_email ) VALUES (?,?,?,?,?)";
+            
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            
+            statement.setInt(1, 0);
+            statement.setDate(2, note.getDateTime());
+            statement.setString(3, note.getBody());
+            statement.setString(4, note.getUser_email());
 
+            statement.executeUpdate();
+        } catch (Exception e) {
+            
+        }
+    
+    }
+  
+
+    @Override
+    public void delete(Note note) {
+        String query = "Delete * FROM note where email = ? and id = ?";
+            
+
+        PreparedStatement statement;
+        try {
+            statement = connection.prepareStatement(query);
+            statement.setString(1, note.getUser_email());
+            statement.setInt(1, note.getId());
+            
+            statement.executeQuery();
         
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+      
+    }
+
+    @Override
+    public void update(Note entity) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'update'");
     }
       
+    @Override
+    public Note auth(Note entity) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'auth'");
+    }
+
+    @Override
+    public Note find(Note entity, String index) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'find'");
+    }
      
 
  }

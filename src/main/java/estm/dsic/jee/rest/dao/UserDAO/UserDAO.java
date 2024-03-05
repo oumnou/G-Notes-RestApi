@@ -21,18 +21,14 @@ public class UserDAO implements Reposistory<User,String>{
              
     @Override
     public void create(User user) {   
-        String query = "INSERT INTO user(id,email, password, isAdmin ) VALUES (?,?,?,?)";
+        String query = "INSERT INTO user(id,user_email, password, isAdmin ) VALUES (?,?,?,?)";
     
-            String password = user.getPassword();
-            String email = user.getEmail();
-            int id = user.getId();
-            Boolean isAdmin = user.getIsAdmin();
             
             try (PreparedStatement statement = connection.prepareStatement(query)) {
-                statement.setInt(1, id);
-                statement.setString(2, email);
-                statement.setString(3, password);
-                statement.setBoolean(4, isAdmin);
+                statement.setInt(1, 0);
+                statement.setString(2, user.getEmail());
+                statement.setString(3, user.getPassword());
+                statement.setBoolean(4, false);
 
                 statement.executeUpdate();
 
@@ -57,7 +53,7 @@ public class UserDAO implements Reposistory<User,String>{
     @Override
     public User find(User user, String index) {
       
-        String query = "SELECT * FROM user where email = ? AND password = ?";
+        String query = "SELECT * FROM user where user_email = ? AND password = ?";
 
       
         try {
@@ -90,14 +86,13 @@ public class UserDAO implements Reposistory<User,String>{
 
     @Override
     public void delete(User user) {
-        String query = "Delete * FROM user where email = ?";
+        String query = "DELETE FROM user WHERE user_email = ?";
             
-
             PreparedStatement statement;
             try {
                 statement = connection.prepareStatement(query);
                 statement.setString(1, user.getEmail());
-                ResultSet resultSet = statement.executeQuery();
+                statement.execute();
             
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -108,15 +103,21 @@ public class UserDAO implements Reposistory<User,String>{
     
 }
 
-
-
-
-
-
     @Override
-    public void update(User entity, String index) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'update'");
+    public void update(User user) {
+       
+        String query = "UPDATE user SET isAdmin = 1 WHERE user_email = ?";
+        
+        PreparedStatement statement;
+        try {
+            statement = connection.prepareStatement(query);
+            statement.setString(1, user.getEmail());
+            statement.executeUpdate();
+        
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }
 
 

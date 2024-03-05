@@ -9,31 +9,31 @@ import javax.sql.DataSource;
 
 import jakarta.annotation.Resource;
 import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+@Path("/admins")
 
-@Path("/users")
-
-public class UserController {
+public class AdminController {
     @Resource(lookup = "jdbc/myDB")
     private DataSource dataSource;
 
     UserDAO userDAO;
-
+    
+    
     @POST
-    @Path("/signup")
+    @Path("/validateUser")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response signup(User user) {
+    public Response validateUser(User user) {
         
             try (Connection connection = dataSource.getConnection()) {
                 
                 if (dataSource != null) {
                     userDAO = new UserDAO(connection);
-                    userDAO.create(user) ;
+                    userDAO.update(user);
+                    
                 } 
             
             } catch (SQLException e) {
@@ -43,51 +43,35 @@ public class UserController {
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Database error").build();
             }
          
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Added succ").build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Updated succ").build();
 
 }
 
 
-    @GET
-    @Path("/login")
+
+@POST
+    @Path("/deleteUser")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response login(User user) {
+    public Response deleteUser(User user) {
         
             try (Connection connection = dataSource.getConnection()) {
+                
                 if (dataSource != null) {
                     userDAO = new UserDAO(connection);
-                    User user2 = userDAO.auth(user);
-
-                    if(user2 == null) {
-                        return Response.status(Response.Status.OK).entity("User is null").build();
-
-                    } else if (user2.getIsAdmin()) {
-                        return Response.status(Response.Status.OK).entity("Admin").build();
-                       
-                        
-                    }else {
-                        return Response.status(Response.Status.OK).entity("No").build();
-
-                    }
-                }
-            else{
-                    System.out.println("Couldn't connect to database");
-            }
-
-                
+                    userDAO.delete(user);
+                    
+                } 
+            
             } catch (SQLException e) {
                 e.printStackTrace();
 
                 // Handle database errors
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Database error").build();
             }
+         
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Updated succ").build();
 
-            // Return a success response
-            return Response.status(Response.Status.OK).entity("User is here").build();
-        
-        }
+}
 
 
-        
-  
 }
