@@ -1,4 +1,4 @@
-package estm.dsic.jee.rest.dao.NoteDAO;
+package estm.dsic.jee.rest.dao;
 
 
 import java.util.ArrayList;
@@ -8,8 +8,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-
-import estm.dsic.jee.rest.dao.Reposistory;
 import estm.dsic.jee.rest.model.Note;
 
 
@@ -23,7 +21,7 @@ public class NoteDAO implements Reposistory<Note,String> {
 
     public ArrayList<Note> getNotes(String user_email )  {
              
-        String query = "SELECT * FROM notes where user_email = ?";
+        String query = "SELECT * FROM note where user_email = ?";
         try {
             
                 PreparedStatement statement = connection.prepareStatement(query);
@@ -40,7 +38,7 @@ public class NoteDAO implements Reposistory<Note,String> {
                     resultSet.getDate("date"),
                     resultSet.getString("subject"),
                     resultSet.getString("body"),
-                    resultSet.getString("idUser")
+                    resultSet.getString("user_email")
                     ));
                 }
 
@@ -63,8 +61,9 @@ public class NoteDAO implements Reposistory<Note,String> {
             
             statement.setInt(1, 0);
             statement.setDate(2, note.getDateTime());
-            statement.setString(3, note.getBody());
-            statement.setString(4, note.getUser_email());
+            statement.setString(4, note.getBody());
+            statement.setString(3, note.getSubject());
+            statement.setString(5, note.getUser_email());
 
             statement.executeUpdate();
         } catch (Exception e) {
