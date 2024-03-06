@@ -3,7 +3,6 @@ package estm.dsic.jee.rest.dao;
 import estm.dsic.jee.rest.model.User;
 import jakarta.annotation.Resource;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Named;
 
 import java.util.ArrayList;
 import java.sql.Connection;
@@ -20,13 +19,8 @@ public class UserDAO implements Reposistory<User,String>{
     @Resource(lookup="jdbc/myDB")
      private DataSource dataSource;
 
-     private  Connection connection;
       public UserDAO(){
-        try {
-            connection = dataSource.getConnection();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        super();
       }
 
     @Override
@@ -161,3 +155,13 @@ public class UserDAO implements Reposistory<User,String>{
 
 }
 }
+
+/**
+    JAS : For security
+    DAO ABSTRACT
+    ResultSet Meta data
+    Default in interface : to remove the redundant in the methods implemented
+    Factory
+ */
+
+
