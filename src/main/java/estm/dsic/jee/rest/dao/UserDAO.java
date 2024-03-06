@@ -2,55 +2,53 @@ package estm.dsic.jee.rest.dao;
 
 import estm.dsic.jee.rest.model.User;
 import jakarta.annotation.Resource;
-import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Named;
 
+import java.util.ArrayList;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-
 import javax.sql.DataSource;
+
 import java.sql.ResultSet;
 
-
 @Named
-@RequestScoped
+@ApplicationScoped
 public class UserDAO implements Reposistory<User,String>{
     
     @Resource(lookup="jdbc/myDB")
     private DataSource dataSource;
-    private Connection connection;
+
+     private  Connection connection;
+      public UserDAO(){
+        try {
+            connection = dataSource.getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+      }
 
     @Override
     public void create(User user) {   
-        
-
+        String query = "INSERT INTO user(user_email, password, isAdmin, isValid) VALUES (?,?,?,?)";         
         try {
+            
+            connection = dataSource.getConnection();
+            PreparedStatement statement = connection.prepareStatement(query);
+            
+            statement.setString(1, user.getEmail());
+            statement.setString(2, user.getPassword());
+            statement.setBoolean(3, false);
 
-            if (connection == null) {
-                connection = dataSource.getConnection();
-            }
+            statement.executeUpdate();
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        String query = "INSERT INTO user(user_email, password, isAdmin ) VALUES (?,?,?)";
-    
-            
-            try (PreparedStatement statement = connection.prepareStatement(query)) {
-                statement.setString(1, user.getEmail());
-                statement.setString(2, user.getPassword());
-                statement.setBoolean(3, false);
-
-                statement.executeUpdate();
-
-            
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-
-   }
+                
+    } 
+   
 
 
     @Override
@@ -61,80 +59,64 @@ public class UserDAO implements Reposistory<User,String>{
 
     @Override
     public User find(User user, String index) {
-        try {
-            connection = dataSource.getConnection();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-      
         String query = "SELECT * FROM user where user_email = ? AND password = ?";
 
-      
         try {
-            
 
-                PreparedStatement statement = connection.prepareStatement(query);
-                statement.setString(1, user.getEmail());
-                statement.setString(2, user.getPassword());
-                ResultSet resultSet = statement.executeQuery() ;
+            Connection connection = dataSource.getConnection();
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, user.getEmail());
+            statement.setString(2, user.getPassword());
+            ResultSet resultSet = statement.executeQuery() ;
 
-                if (resultSet.next()) {
+            if (resultSet.next()) {
 
-                   return new User(
-                
+                return new User(
+
                     resultSet.getString("email"),
                     resultSet.getString("password"),
-                    resultSet.getBoolean("isAdmin"));
+                    resultSet.getBoolean("isAdmin"),
+                    resultSet.getBoolean("isValid"));
+                
                 }
             
                
-        } catch (Exception e) {
+        }catch (Exception e) {
            
           return null;
 
         }
+
         return null;
     }
 
 
     @Override
     public void delete(User user) {
-        try {
-            connection = dataSource.getConnection();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
         String query = "DELETE FROM user WHERE user_email = ?";
 
-            PreparedStatement statement;
-            try {
-                statement = connection.prepareStatement(query);
-                statement.setString(1, user.getEmail());
-                statement.execute();
+        try {
+            Connection connection = dataSource.getConnection();
+            PreparedStatement statement = connection.prepareStatement(query);
+
             
-            } catch (SQLException e) {
+            statement.setString(1, user.getEmail());
+            statement.execute();
+            
+            }catch (SQLException e) {
                 e.printStackTrace();
             }
           
-
-        
-    
 }
 
     @Override
     public void update(User user) {
-        try {
-          
-            connection = dataSource.getConnection();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+       
        
         String query = "UPDATE user SET isAdmin = 1 WHERE user_email = ?";
-        
-        PreparedStatement statement;
         try {
-            statement = connection.prepareStatement(query);
+            Connection connection = dataSource.getConnection();
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, user.getEmail());
             statement.executeUpdate();
         
@@ -144,8 +126,37 @@ public class UserDAO implements Reposistory<User,String>{
 
     }
 
+    public ArrayList<User> getAllUsers() {
+
+        String query = "SELECT * FROM user"; 
+        try {
+            Connection connection = dataSource.getConnection();
+            PreparedStatement statement = connection.prepareStatement(query);
+            ResultSet resultSet = statement.executeQuery() ;
+             ArrayList<User> users = new ArrayList<>();
+                    
+                    if (resultSet.next()) {
+                        
+                       users.add(
+                        new User(
+                        resultSet.getString("email"),
+                        resultSet.getString("password"),
+                        resultSet.getBoolean("isAdmin"),
+                        resultSet.getBoolean("isValid")
+
+                        ));
+                    }
+
+                    return users;
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
 
 
+            
 
 
+}
 }

@@ -7,9 +7,14 @@ import estm.dsic.jee.rest.dao.NoteDAO;
 import estm.dsic.jee.rest.model.Note;
 import jakarta.inject.Inject;
 
+/**
+ * NoteServices
+ */
+
+
 public class NoteServices implements INote{
 
-    @Inject NoteDAO noteDAO;
+    @Inject NoteDAO noteDAO ;
 
     @Override
     public void addNote(Note note) {

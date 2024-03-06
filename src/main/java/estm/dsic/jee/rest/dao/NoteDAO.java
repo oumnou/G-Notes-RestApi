@@ -1,6 +1,5 @@
 package estm.dsic.jee.rest.dao;
 
-
 import java.util.ArrayList;
 
 import java.sql.Connection;

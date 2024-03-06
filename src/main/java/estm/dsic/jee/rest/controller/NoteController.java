@@ -14,7 +14,6 @@ import jakarta.ws.rs.core.MediaType;
 @Path("/notes")
 public class NoteController {
 
-
     NoteServices noteServices;
 
     @POST
@@ -35,7 +34,6 @@ public class NoteController {
         return noteServices.getNotes(email);
         
     }
-
 
 
     @POST
