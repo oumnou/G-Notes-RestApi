@@ -13,12 +13,12 @@ import javax.sql.DataSource;
 
 import java.sql.ResultSet;
 
-@Named
+
 @ApplicationScoped
 public class UserDAO implements Reposistory<User,String>{
     
     @Resource(lookup="jdbc/myDB")
-    private DataSource dataSource;
+     private DataSource dataSource;
 
      private  Connection connection;
       public UserDAO(){
@@ -32,14 +32,15 @@ public class UserDAO implements Reposistory<User,String>{
     @Override
     public void create(User user) {   
         String query = "INSERT INTO user(user_email, password, isAdmin, isValid) VALUES (?,?,?,?)";         
-        try {
+        try (Connection connectiont = dataSource.getConnection();) {
             
-            connection = dataSource.getConnection();
-            PreparedStatement statement = connection.prepareStatement(query);
+            
+            PreparedStatement statement = connectiont.prepareStatement(query);
             
             statement.setString(1, user.getEmail());
             statement.setString(2, user.getPassword());
             statement.setBoolean(3, false);
+            statement.setBoolean(4, false);
 
             statement.executeUpdate();
 
