@@ -3,6 +3,7 @@ package estm.dsic.jee.rest.dao;
 import estm.dsic.jee.rest.model.User;
 import jakarta.annotation.Resource;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Named;
 
 import java.util.ArrayList;
 import java.sql.Connection;
@@ -12,7 +13,7 @@ import javax.sql.DataSource;
 
 import java.sql.ResultSet;
 
-
+@Named
 @ApplicationScoped
 public class UserDAO implements Reposistory<User,String>{
     
@@ -24,7 +25,7 @@ public class UserDAO implements Reposistory<User,String>{
       }
 
     @Override
-    public void create(User user) {   
+    public User create(User user) {   
         String query = "INSERT INTO user(user_email, password, isAdmin, isValid) VALUES (?,?,?,?)";         
         try (Connection connectiont = dataSource.getConnection();) {
             
@@ -42,6 +43,7 @@ public class UserDAO implements Reposistory<User,String>{
             e.printStackTrace();
         }
                 
+        return null;
     } 
    
 
@@ -68,6 +70,7 @@ public class UserDAO implements Reposistory<User,String>{
 
                 return new User(
 
+                    resultSet.getString("username"),
                     resultSet.getString("email"),
                     resultSet.getString("password"),
                     resultSet.getBoolean("isAdmin"),
@@ -104,7 +107,8 @@ public class UserDAO implements Reposistory<User,String>{
           
 }
 
-    @Override
+
+@Override
     public void update(User user) {
        
        
@@ -134,6 +138,8 @@ public class UserDAO implements Reposistory<User,String>{
                         
                        users.add(
                         new User(
+                            
+                        resultSet.getString("username"),
                         resultSet.getString("email"),
                         resultSet.getString("password"),
                         resultSet.getBoolean("isAdmin"),
@@ -154,6 +160,8 @@ public class UserDAO implements Reposistory<User,String>{
 
 
 }
+
+   
 }
 
 /**

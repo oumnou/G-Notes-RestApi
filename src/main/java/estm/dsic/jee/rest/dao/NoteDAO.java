@@ -1,41 +1,50 @@
 package estm.dsic.jee.rest.dao;
 
+import java.util.List;
 import java.util.ArrayList;
+
+import javax.sql.DataSource;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import estm.dsic.jee.rest.model.Note;
+import jakarta.annotation.Resource;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Named;
 
-
+@Named
+@ApplicationScoped
 public class NoteDAO implements Reposistory<Note,String> {
    
-    Connection connection ;
+   @Resource(lookup="jdbc/myDB")
+    private DataSource dataSource;
 
-    public NoteDAO(Connection connection){
-        this.connection = connection;
+    public NoteDAO(){
+        super();
     }
 
-    public ArrayList<Note> getNotes(String user_email )  {
+    public List<Note> getNotes(String user_email)  {
              
         String query = "SELECT * FROM note where user_email = ?";
-        try {
+        try(Connection connection = dataSource.getConnection();) {
             
                 PreparedStatement statement = connection.prepareStatement(query);
                 statement.setString(1, user_email);
                 ResultSet resultSet = statement.executeQuery() ;
 
-                ArrayList<Note> notes = new ArrayList<>();
+                List<Note> notes = new ArrayList<>();
                 
                 if (resultSet.next()) {
                     
                    notes.add(
                     new Note(
-                    resultSet.getInt(0),             
-                    resultSet.getDate("date"),
-                    resultSet.getString("subject"),
+                    resultSet.getInt("id"),             
+                    resultSet.getString("date"),
+                    resultSet.getString("title"),
                     resultSet.getString("body"),
                     resultSet.getString("user_email")
                     ));
@@ -46,56 +55,32 @@ public class NoteDAO implements Reposistory<Note,String> {
                
         } catch (Exception e) {
            
-          return null;
-
+          e.printStackTrace();
+            return null;
         }
     }
-   
-   
-    @Override
-    public void create(Note note) {
-        String query = "INSERT INTO note(id, date, subject, body, user_email ) VALUES (?,?,?,?,?)";
-            
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
-            
-            statement.setInt(1, 0);
-            statement.setDate(2, note.getDateTime());
-            statement.setString(4, note.getBody());
-            statement.setString(3, note.getSubject());
-            statement.setString(5, note.getUser_email());
-
-            statement.executeUpdate();
-        } catch (Exception e) {
-            
-        }
     
+   
+    
+    @Override
+    public Note create(Note note) {
+        String query = "INSERT INTO note (body, title, user_email, date) VALUES (?, ?, ?, ?)";
+        return executeQueryAndGetNote(query, note.getBody(), note.getTitle(), note.getUser_email(), note.getDateTime());
     }
-  
-
+    
     @Override
     public void delete(Note note) {
-        String query = "Delete * FROM note where email = ? and id = ?";
-            
-
-        PreparedStatement statement;
-        try {
-            statement = connection.prepareStatement(query);
-            statement.setString(1, note.getUser_email());
-            statement.setInt(1, note.getId());
-            
-            statement.executeQuery();
-        
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-      
+        String query = "DELETE FROM note WHERE user_email = ? AND id = ?";
+        executeQueryAndGetNote(query, note.getUser_email(), note.getId());
     }
-
+    
     @Override
-    public void update(Note entity) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'update'");
+    public void update(Note note) {
+        String query = "UPDATE note SET body = ?, title = ?, date = ? WHERE user_email = ? AND id = ?";
+        executeQueryAndGetNote(query, note.getBody(), note.getTitle(), note.getDateTime(), note.getUser_email(), note.getId());
     }
+    
+    
       
     @Override
     public Note auth(Note entity) {
@@ -109,5 +94,36 @@ public class NoteDAO implements Reposistory<Note,String> {
         throw new UnsupportedOperationException("Unimplemented method 'find'");
     }
      
-
+    private Note executeQueryAndGetNote(String query, Object... params) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+            
+            // Set parameters
+            for (int i = 0; i < params.length; i++) {
+                statement.setObject(i + 1, params[i]);
+            }
+    
+            // Execute query
+            int affectedRows = statement.executeUpdate();
+    
+            if (affectedRows == 0) {
+                throw new SQLException("Operation failed, no rows affected.");
+            }
+    
+            // Retrieve generated keys if any
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    int id = generatedKeys.getInt(1);
+                    Note note = new Note();
+                    note.setId(id);
+                    return note; // Return the Note object with the inserted id
+                } else {
+                    throw new SQLException("Operation failed, no ID obtained.");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null; // Return null if operation fails
+    }
  }

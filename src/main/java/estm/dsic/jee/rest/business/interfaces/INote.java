@@ -1,12 +1,12 @@
 package estm.dsic.jee.rest.business.interfaces;
 
 import estm.dsic.jee.rest.model.Note;
-import java.util.ArrayList;
+import java.util.List;
 
 public interface INote {
     
-    void addNote(Note note);
+    Note addNote(Note note);
     void deleteNote(Note note);
     void updateNote(Note note);
-    ArrayList<Note> getNotes(String email);
+    List<Note> getNotes(String email);
 }

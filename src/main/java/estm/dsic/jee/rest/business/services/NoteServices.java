@@ -1,25 +1,29 @@
 package estm.dsic.jee.rest.business.services;
 
-import java.util.ArrayList;
+import java.io.Serializable;
+import java.util.List;
 
 import estm.dsic.jee.rest.business.interfaces.INote;
 import estm.dsic.jee.rest.dao.NoteDAO;
 import estm.dsic.jee.rest.model.Note;
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 /**
  * NoteServices
  */
 
-
-public class NoteServices implements INote{
+@Named
+@SessionScoped
+public class NoteServices implements INote, Serializable{
 
     @Inject NoteDAO noteDAO ;
 
     @Override
-    public void addNote(Note note) {
-        noteDAO.create(note) ;
-
+    public Note addNote(Note note) {
+       return noteDAO.create(note) ;
+        
     }
 
     @Override
@@ -33,7 +37,7 @@ public class NoteServices implements INote{
     }
 
     @Override
-    public ArrayList<Note> getNotes(String email) {
+    public List<Note> getNotes(String email) {
         return noteDAO.getNotes(email);
     }
 

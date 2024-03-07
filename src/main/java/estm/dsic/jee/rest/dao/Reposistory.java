@@ -3,7 +3,7 @@ package estm.dsic.jee.rest.dao;
 public interface Reposistory<T,I> {
   
 
-    void create(T entity);
+    T create(T entity);
     void delete(T entity);
     void update(T entity);
     

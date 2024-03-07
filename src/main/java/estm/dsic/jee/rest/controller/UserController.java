@@ -22,7 +22,7 @@ public class UserController {
 
       userServices.signup(user);
 
-}
+    }
 
 
     @GET
