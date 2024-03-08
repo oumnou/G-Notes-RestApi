@@ -38,7 +38,7 @@ public class NoteServices implements INote, Serializable{
 
     @Override
     public List<Note> getNotes(String email) {
-        return noteDAO.getNotes(email);
+        return noteDAO.getAll(email);
     }
 
 

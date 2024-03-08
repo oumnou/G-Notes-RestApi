@@ -5,6 +5,7 @@ import jakarta.annotation.Resource;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Named;
 
+import java.util.List;
 import java.util.ArrayList;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -26,16 +27,16 @@ public class UserDAO implements Reposistory<User,String>{
 
     @Override
     public User create(User user) {   
-        String query = "INSERT INTO user(user_email, password, isAdmin, isValid) VALUES (?,?,?,?)";         
+        String query = "INSERT INTO user(username,user_email, password, isAdmin, isValid) VALUES (?,?,?,?,?)";         
         try (Connection connectiont = dataSource.getConnection();) {
             
             
             PreparedStatement statement = connectiont.prepareStatement(query);
-            
-            statement.setString(1, user.getEmail());
-            statement.setString(2, user.getPassword());
-            statement.setBoolean(3, false);
+            statement.setString(2, user.getEmail());
+            statement.setString(3, user.getPassword());
             statement.setBoolean(4, false);
+            statement.setBoolean(5, false);
+            statement.setString(1, user.getUsername());
 
             statement.executeUpdate();
 
@@ -48,15 +49,8 @@ public class UserDAO implements Reposistory<User,String>{
    
 
 
-    @Override
-    public User auth(User entity) {
-       return find(entity, null);
-    }
-
-
-    @Override
-    public User find(User user, String index) {
-        String query = "SELECT * FROM user where user_email = ? AND password = ?";
+    public User auth(User user) {
+        String query = "SELECT * FROM user where user_email = ? And password = ? ";
 
         try {
 
@@ -66,22 +60,64 @@ public class UserDAO implements Reposistory<User,String>{
             statement.setString(2, user.getPassword());
             ResultSet resultSet = statement.executeQuery() ;
 
+ 
             if (resultSet.next()) {
 
                 return new User(
 
                     resultSet.getString("username"),
-                    resultSet.getString("email"),
-                    resultSet.getString("password"),
+                    resultSet.getString("user_email"),
+                    "",
                     resultSet.getBoolean("isAdmin"),
-                    resultSet.getBoolean("isValid"));
+                    resultSet.getBoolean("isValid"))
+                    ;
                 
                 }
-            
                
         }catch (Exception e) {
            
-          return null;
+          e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    @Override
+    public List<User> find(User user) {
+        if (user.getUsername() == "") {
+            return getAll();
+            
+        }
+        String query = "SELECT * FROM user WHERE username LIKE ?";
+
+        try {
+
+            Connection connection = dataSource.getConnection();
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, user.getUsername());
+            ResultSet resultSet = statement.executeQuery() ;
+
+            List<User> users = new ArrayList<>();
+ 
+            if (resultSet.next()) {
+
+                User userD = new User(
+
+                    resultSet.getString("username"),
+                    resultSet.getString("user_email"),
+                    "",
+                    false,
+                    true
+                    );
+
+                    users.add(userD);
+                
+                }
+            return users;
+               
+        }catch (Exception e) {
+           
+          e.printStackTrace();
 
         }
 
@@ -112,11 +148,12 @@ public class UserDAO implements Reposistory<User,String>{
     public void update(User user) {
        
        
-        String query = "UPDATE user SET isAdmin = 1 WHERE user_email = ?";
+        String query = "UPDATE user SET isValid = ? WHERE user_email = ?";
         try {
             Connection connection = dataSource.getConnection();
             PreparedStatement statement = connection.prepareStatement(query);
-            statement.setString(1, user.getEmail());
+            statement.setString(2, user.getUsername());
+            statement.setBoolean(1, !user.getIsValid());
             statement.executeUpdate();
         
         } catch (SQLException e) {
@@ -125,32 +162,32 @@ public class UserDAO implements Reposistory<User,String>{
 
     }
 
-    public ArrayList<User> getAllUsers() {
+    @Override
+    public List<User> getAll() {
 
         String query = "SELECT * FROM user"; 
         try {
             Connection connection = dataSource.getConnection();
             PreparedStatement statement = connection.prepareStatement(query);
             ResultSet resultSet = statement.executeQuery() ;
-             ArrayList<User> users = new ArrayList<>();
+             List<User> users = new ArrayList<>();
                     
-                    if (resultSet.next()) {
+                    while (resultSet.next()) {
                         
-                       users.add(
-                        new User(
+                        User userD = new User(                      
                             
                         resultSet.getString("username"),
-                        resultSet.getString("email"),
+                        resultSet.getString("user_email"),
                         resultSet.getString("password"),
                         resultSet.getBoolean("isAdmin"),
                         resultSet.getBoolean("isValid")
 
-                        ));
+                        );
+                        users.add(userD);
                     }
 
                     return users;
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return null;

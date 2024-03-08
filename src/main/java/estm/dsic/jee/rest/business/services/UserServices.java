@@ -23,15 +23,8 @@ public class UserServices implements IUser, Serializable{
 
     @Override
     public User authentification(User user) {
-        User userDB = userDAO.auth(user);
-
-        if(userDB == null) {
-
-        } else if (userDB.getIsAdmin()) {
-                       
-                        
-        }
-        return userDB;
+        return userDAO.auth(user);
+        
                     
     }
           

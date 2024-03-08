@@ -1,6 +1,6 @@
 package estm.dsic.jee.rest.business.services;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.io.Serializable;
 
 import estm.dsic.jee.rest.business.interfaces.IAdmin;
@@ -34,8 +34,12 @@ public class AdminServices implements IAdmin, Serializable{
 
 
     @Override
-    public ArrayList<User> getAllUsers() {
-       return userDAO.getAllUsers();
+    public List<User> getAllUsers() {
+       return userDAO.getAll();
+    }
+
+    public List<User> getUsers(User user) {
+       return userDAO.find(user);
     }
 
 

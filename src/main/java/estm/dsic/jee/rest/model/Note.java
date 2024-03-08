@@ -1,8 +1,5 @@
 package estm.dsic.jee.rest.model;
 
-import java.sql.Date;
-
-
 public class Note {
     
     private int id ;

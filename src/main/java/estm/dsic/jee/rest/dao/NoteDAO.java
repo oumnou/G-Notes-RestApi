@@ -27,7 +27,7 @@ public class NoteDAO implements Reposistory<Note,String> {
         super();
     }
 
-    public List<Note> getNotes(String user_email)  {
+    public List<Note> getAll(String user_email)  {
              
         String query = "SELECT * FROM note where user_email = ?";
         try(Connection connection = dataSource.getConnection();) {
@@ -38,18 +38,18 @@ public class NoteDAO implements Reposistory<Note,String> {
 
                 List<Note> notes = new ArrayList<>();
                 
-                if (resultSet.next()) {
-                    
-                   notes.add(
-                    new Note(
-                    resultSet.getInt("id"),             
-                    resultSet.getString("date"),
-                    resultSet.getString("title"),
-                    resultSet.getString("body"),
-                    resultSet.getString("user_email")
-                    ));
+                while (resultSet.next()) {
+                    Note note = new Note(
+                            resultSet.getInt("id"),
+                            resultSet.getString("date"),
+                            resultSet.getString("title"),
+                            resultSet.getString("body"),
+                            resultSet.getString("user_email")
+                    );
+                    notes.add(note);
                 }
 
+                System.out.println(notes);
                 return notes;
             
                
@@ -80,16 +80,9 @@ public class NoteDAO implements Reposistory<Note,String> {
         executeQueryAndGetNote(query, note.getBody(), note.getTitle(), note.getDateTime(), note.getUser_email(), note.getId());
     }
     
-    
-      
-    @Override
-    public Note auth(Note entity) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'auth'");
-    }
 
     @Override
-    public Note find(Note entity, String index) {
+    public List<Note> find(Note entity) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'find'");
     }
@@ -125,5 +118,11 @@ public class NoteDAO implements Reposistory<Note,String> {
             e.printStackTrace();
         }
         return null; // Return null if operation fails
+    }
+
+    @Override
+    public List<Note> getAll() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAll'");
     }
  }

@@ -3,17 +3,18 @@ package estm.dsic.jee.rest.controller;
 import estm.dsic.jee.rest.business.services.AdminServices;
 import estm.dsic.jee.rest.model.User;
 
-import java.util.ArrayList;
-
+import java.util.List;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.MediaType;
 
-@Path("/admins")
+@Path("/admin")
 
 public class AdminController {
     @Inject AdminServices adminServices;
@@ -28,9 +29,7 @@ public class AdminController {
            
     }
 
-
-
-    @POST
+    @DELETE
     @Path("/deleteUser")
     @Consumes(MediaType.APPLICATION_JSON)
     public void deleteUser(User user) {
@@ -39,11 +38,19 @@ public class AdminController {
 
     }
 
-
-    @Path("/allUsers")
     @GET
-    public ArrayList<User> getAllUsers(){
+    @Path("/allUsers")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
 
+    public List<User> getAllUsers(){
         return adminServices.getAllUsers();
+    }
+
+
+    @Path("/getUser")
+    @GET
+    public List<User> getUser(User user) {
+        return adminServices.getUsers(user);
     }
 }
