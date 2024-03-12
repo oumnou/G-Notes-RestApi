@@ -1,29 +1,29 @@
 package estm.dsic.jee.rest.business.services;
 
 import estm.dsic.jee.rest.business.interfaces.IUser;
-import estm.dsic.jee.rest.dao.UserDAO;
+import estm.dsic.jee.rest.dao.UserDAOP;
 import estm.dsic.jee.rest.model.User;
-
-import jakarta.enterprise.context.SessionScoped;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+
 import java.io.Serializable;
 
 
 /**
  * UserServices
  */
-
 @Named
-@SessionScoped
+@RequestScoped
 public class UserServices implements IUser, Serializable{
     
-    @Inject UserDAO userDAO;
+     @Inject 
+     UserDAOP userDAO = new UserDAOP();
 
 
     @Override
     public User authentification(User user) {
-        return userDAO.auth(user);
+        return userDAO.searchUser(user);
         
                     
     }
@@ -31,7 +31,7 @@ public class UserServices implements IUser, Serializable{
 
     @Override
     public void signup(User user) {
-        userDAO.create(user) ;
+        userDAO.insertUser(user) ;
     }
     
 }

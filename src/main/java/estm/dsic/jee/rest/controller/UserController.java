@@ -12,7 +12,8 @@ import jakarta.ws.rs.core.MediaType;
 @Path("/users")
 public class UserController {
 
-    @Inject UserServices userServices = new UserServices();
+  @Inject
+    UserServices userServices = new UserServices();
 
 
     @POST

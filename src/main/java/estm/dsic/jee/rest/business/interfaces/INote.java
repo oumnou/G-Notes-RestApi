@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface INote {
     
-    Note addNote(Note note);
+    void addNote(Note note);
     void deleteNote(Note note);
     void updateNote(Note note);
     List<Note> getNotes(String email);

@@ -17,7 +17,9 @@ import jakarta.ws.rs.core.MediaType;
 @Path("/admin")
 
 public class AdminController {
-    @Inject AdminServices adminServices;
+
+    @Inject
+     AdminServices adminServices = new AdminServices();
    
     
     @POST
@@ -48,9 +50,9 @@ public class AdminController {
     }
 
 
-    @Path("/getUser")
-    @GET
-    public List<User> getUser(User user) {
-        return adminServices.getUsers(user);
-    }
+    // @Path("/getUser")
+    // @GET
+    // public List<User> getUser(User user) {
+    //     return adminServices.getUsers(user);
+    // }
 }

@@ -1,37 +1,40 @@
 package estm.dsic.jee.rest.model;
 
-public class Note {
+import java.io.Serializable;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
+
+@Entity
+@Table(name = "notes")
+public class Note implements Serializable{
     
-    private int id ;
+    @Id
+
+    private int id;
+
+    @ManyToOne
+    @JoinColumn(name="user_is")
+    private User user;
+    
+
+    
     private String dateTime;
     private String title;
     private String body;
     private String user_email;
     
+
+
+
     public Note() {
     }
 
-
-
-    public Note(int id ,String dateTime, String title, String body, String user_email) {
-        
-        this.id = id;
-        this.dateTime = dateTime;
-        this.title = title;
-        this.body = body;
-        this.user_email = user_email;
-
-    }
-
-
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
+  
     public String getDateTime() {
         return dateTime;
     }
@@ -57,14 +60,11 @@ public class Note {
     public void setUser_email(String user_email) {
         this.user_email = user_email;
     }
-
-
-
-    @Override
-    public String toString() {
-        return "Note [id=" + id + ", dateTime=" + dateTime + ", title=" + title + ", body=" + body + ", user_email="
-                + user_email + "]";
+    public void setId(int id) {
+        this.id = id;
     }
+
+
     
 
 }

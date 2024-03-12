@@ -16,17 +16,17 @@ import jakarta.ws.rs.core.MediaType;
 
 @Path("/notes")
 public class NoteController { 
-    
-    @Inject NoteServices noteServices;
+    @Inject
+     NoteServices noteServices = new NoteServices();
 
     @POST
     @Path("/addNote")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Note addNote(Note note) {
+    public void addNote(Note note) {
         System.out.println(note);
        
-        return noteServices.addNote(note);
+         noteServices.addNote(note);
 
 
     }
